@@ -1,0 +1,1 @@
+kubeadm join 192.168.99.101:6443 --token tsirot.mjdow8ltho0u3g2i --discovery-token-ca-cert-hash sha256:c47ca20d3afd844b6ad1178e61107657bffc8be2660b84215169ef97399641bf

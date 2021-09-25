@@ -1,0 +1,27 @@
+terraform {
+  required_providers {
+    docker = {
+      source  = "kreuzwerker/docker"
+      version = "2.14.0"
+    }
+  }
+}
+
+resource "docker_container" "con-web" {
+
+  name = var.v_con_name
+
+  image = var.v_image
+  
+  env = [ "APP_VARIABLE=chono" ]
+  
+  
+  ports {
+
+    internal = var.v_int_port
+
+    external = var.v_ext_port
+
+  }
+
+}

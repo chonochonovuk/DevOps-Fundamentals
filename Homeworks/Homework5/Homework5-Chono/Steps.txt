@@ -1,0 +1,8 @@
+1.Provision Vagrant Ubuntu based with Nomad and Consul
+2.Run nomad agent -config server.hcl
+3.Run nomad agent -config client1.hcl with Enabled Docker Volume and Host Network
+4.nomad job run mariadb.nomad
+5.nomad job run php.nomad
+6.Jobs running
+7.Our app is working
+

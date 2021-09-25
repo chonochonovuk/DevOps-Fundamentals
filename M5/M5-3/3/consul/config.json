@@ -1,0 +1,17 @@
+{
+    "bootstrap": false,
+    "server": false,
+    "bind_addr": "192.168.50.101",
+    "advertise_addr": "192.168.50.101",
+    "datacenter": "dc1",
+    "data_dir": "/var/lib/consul",
+    "ui_dir": "/home/consul/dist",
+    "log_level": "DEBUG",
+    "enable_syslog" : true,
+    "node_name": "nomad-client1",
+    "encrypt": "4ZqjDrgbgmqgBPKHculMjZKSptgmj4WoTWhucj8O3Uk=",
+    "start_join": ["192.168.50.11", "192.168.50.12", "__PRIVATE_IP4__"],
+    "retry_join": ["192.168.50.11", "192.168.50.12", "__PRIVATE_IP4__"],
+    "retry_interval" : "15s",
+    "rejoin_after_leave": true
+}

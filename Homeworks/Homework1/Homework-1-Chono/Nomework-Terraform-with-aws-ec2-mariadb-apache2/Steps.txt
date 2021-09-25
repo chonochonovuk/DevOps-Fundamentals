@@ -1,0 +1,12 @@
+1.Working with main directory only create or modify a bit main.tf from practice
+2.Main.tf modifications as follow:
+  a.create two security_groups one for web to open port 80 and one for db to open port 3306  
+  b.use element function to add right group to right aws instance
+  c.Create provison scripts and add them to right aws instances
+  d.Scripts
+3.Run "terraform init"
+4.Run "terraform apply"
+5.terraform successful
+6.AWS instances with right security_groups and running
+7.Only manual step is to add db host in web instance
+8.Our simple web app working

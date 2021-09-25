@@ -1,0 +1,10 @@
+In a spirit of developer principle - KISS, software reusability, low coupling and high cohesion.
+We wiil take advantage of my two custom created helm packages 'mariadb' and 'php-mysql' <--which you can see in my other homework folder for Helm --> and use 'kubernetes provider' in combination with 'helm provider'
+
+1.main.tf
+2.terraform plan
+3.terraform apply
+4.kubectl get pods
+5.minikube service list
+6.Integration Terrafrom + Kubernetes + Helm -> Succesful. Up and running.
+

@@ -1,0 +1,32 @@
+# -*- mode: ruby -*-
+# vi: set ft=ruby :
+
+Vagrant.configure("2") do |config|
+
+  config.ssh.insert_key = false
+
+  config.vm.define "vault" do |vault|
+    vault.vm.box="shekeriev/centos-8-minimal"
+    vault.vm.hostname = "vault.dof.lab"
+    vault.vm.network "private_network", ip: "192.168.99.100"
+    vault.vm.network "forwarded_port", guest: 8200, host: 8200, auto_correct: true
+    vault.vm.provider :virtualbox do |vb|
+        vb.customize ["modifyvm", :id, "--memory", "2048"]
+    end
+    vault.vm.provision "shell", inline: <<EOS
+echo "* Add hosts ..."
+echo "192.168.99.100 vault.dof.lab vault" >> /etc/hosts
+
+echo "* Install BASH Completion, etc. ..."
+dnf install -y bash-completion jq
+
+echo "* Firewall - open port 8200 ..."
+firewall-cmd --add-port=8200/tcp --permanent
+
+echo "* Firewall - reload rules ..."
+firewall-cmd --reload
+
+EOS
+  end
+
+end

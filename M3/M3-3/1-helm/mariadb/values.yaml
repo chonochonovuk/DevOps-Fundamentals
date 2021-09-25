@@ -1,0 +1,6 @@
+replicaCount: 1
+mariadb:
+    name: dob-mysql
+    container:
+        image: shekeriev/dob-w3-mysql:latest
+    port: 3306

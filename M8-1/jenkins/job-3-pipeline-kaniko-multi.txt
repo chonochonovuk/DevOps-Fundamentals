@@ -1,0 +1,47 @@
+def label = "kaniko-${UUID.randomUUID().toString()}"
+
+podTemplate(name: 'kaniko', label: label, yaml: """
+kind: Pod
+metadata:
+  name: kaniko
+spec:
+  containers:
+  - name: kaniko
+    image: gcr.io/kaniko-project/executor:debug
+    imagePullPolicy: Always
+    command:
+    - /busybox/cat
+    tty: true
+    volumeMounts:
+      - name: kaniko-docker-config
+        mountPath: /kaniko/.docker
+  restartPolicy: Never
+  volumes:
+    - name: kaniko-docker-config
+      configMap:
+        name: kaniko-docker-config
+"""
+  ) {
+
+  node(label) {
+    git branch: 'main', url: 'https://github.com/shekeriev/dofepapp.git'
+    stage('Build with Kaniko 1') {
+      container(name: 'kaniko', shell: '/busybox/sh') {
+        withEnv(['PATH+EXTRA=/busybox:/kaniko']) {
+          sh '''#!/busybox/sh
+          /kaniko/executor -f `pwd`/app/Dockerfile -c `pwd`/app --destination=shekeriev/dofepapp-multi:1 --force 
+          '''
+        }
+      }
+    }
+    stage('Build with Kaniko 2') {
+      container(name: 'kaniko', shell: '/busybox/sh') {
+        withEnv(['PATH+EXTRA=/busybox:/kaniko']) {
+          sh '''#!/busybox/sh
+          /kaniko/executor -f `pwd`/app/Dockerfile -c `pwd`/app --destination=shekeriev/dofepapp-multi:2 --force 
+          '''
+        }
+      }
+    }
+  }
+}

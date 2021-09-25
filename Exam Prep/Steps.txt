@@ -1,0 +1,196 @@
+1.Infrastructure - AWS
+2.Create a new user group with the necessary permissions.
+3.Add my user to this group.
+4.Create the S3 bucket
+aws s3 mb s3://dof-chono-exam
+5.Create the Route 53 hosted zone
+6.Define the cluster
+ - kops create cluster --name=kops.chonov.net --state=s3://dof-chono-exam --zones=eu-central-1a --ssh-public-key ~/.ssh/authorized_keys --node-count=2 --node-size=t2.medium --master-size=t2.medium --dns-zone=kops.chonov.net --container-runtime=docker
+ 
+   --- change zone - eu-west-2 ----
+7.Update cluster apply
+ - kops update cluster kops.chonov.net --state=s3://dof-chono-exam --yes --admin
+8.Validate cluster
+  - kops validate cluster --state=s3://dof-chono-exam
+  - kubectl get pods --all-namespaces
+  
+  Wait until everything is up and running (it may take up to 5 or even more minutes)
+  
+9.ssh to master
+ ssh to the master: ssh -i ~/.ssh/authorized_keys ubuntu@api.kops.chonov.net
+
+10.Monitoring
+
+ - docker login
+
+Go to folder /docker-images-elk
+Enter in every sub-folder (elasticsearch, filebeat, kibana, and logstash) and examine the files
+
+Build and publish the images with:
+
+a) elasticsearch
+
+cd elasticsearch
+
+docker image build -t chonochonov/dof-elasticsearch:7.14.1 .
+
+docker push chonochonov/dof-elasticsearch:7.14.1
+
+b) logstash
+
+cd logstash
+
+docker image build -t chonochonov/dof-logstash:7.14.1 .
+
+docker push chonochonov/dof-logstash:7.14.1
+
+c) kibana
+
+cd kibana
+
+docker image build -t chonochonov/dof-kibana:7.14.1 .
+
+docker push chonochonov/dof-kibana:7.14.1
+
+d) filebeat
+
+cd filebeat
+
+docker image build -t chonochonov/dof-filebeat:7.14.1 .
+
+docker push chonochonov/dof-filebeat:7.14.1
+
+11.Adjust the Elastic deployment files
+   
+   - Go to folder /elastic-stack
+a) change image in logstash-deployment.yml - chonochonov/dof-logstash:7.14.1 and size to 512mb
+b) change image into kibana-deployment,yml  - chonochonov/dof-kibana:7.14.1
+c) change image into elasticsearch-deployment.yml - chonochonov/dof-elasticsearch:7.14.1 and size to 512mb
+
+!!! Create security group and attach it to nodes and master !!!
+
+12.Edit master -> security group - Edit Inbound Rules - Add rule - Custom TCP 30000-33000 [0.0.0.0/0]
+13.Go to security groups choose nodes security group - Edit Inbound Rules - Add rule - Custom TCP 30000-33000 [0.0.0.0/0]
+ 
+a) Check master - Public IPv4 address
+b) run - kubectl cluster-info
+
+14.kubectl apply -f elastic-stack/ -R
+15.kubectl get pods,svc
+!!! Wait for elastic-stack !!!
+16.kubectl apply -f metricbeat/ -R
+17.kubectl apply -f filebeat/ -R
+18. docker login
+a) Check if the config.json file is created:
+
+ls -l ~/.docker/config.json
+
+b)Create a config map:
+
+kubectl create configmap docker-config --from-file=$HOME/.docker/config.json
+
+kubectl get cm
+
+19.CI/CD - Jenkins installed with Helm
+
+a) Create a separate namespace:
+
+kubectl create namespace jenkins
+
+b) Add the Jenkins repository
+
+helm repo add jenkins https://charts.jenkins.io
+
+c) Refresh Helm repository information if needed with:
+
+helm repo update
+
+d) Install Jenkins:
+
+helm install jenkins --namespace jenkins --set controller.serviceType=NodePort jenkins/jenkins
+
+e) kubectl get pods,svc -n jenkins
+
+Get the public Ip address of the master node
+
+login 
+
+user: admin
+password:
+kubectl exec --namespace jenkins -it svc/jenkins -c jenkins -- /bin/cat /run/secrets/chart-admin-password && echo
+
+20.Manage Jenkins -> Configure System -> Jenkins URL -> (NodePort - IP from command kubectl get pods,svc -n jenkins !!! Ensure port is the same) -> Save
+21.Manage Jenkins -> Manage Nodes and Clouds -> Configure Clouds -> Kubernetes -> Kubernetes Cloud Details -> Kubernetes URL -> ( GET Master Public DNS from AWS ) -> https://Public DNS
+22.Disable https certificate check - yes
+23.Test connection
+24.Pod Templates -> Pod Templates Details -> namespace -> jenkins
+25.Ensure Kubernetes Namespace === Pod Templates Details -> namespace -> Save
+26.Create additional configuration with Docker Hub (or another registry) credentials in the jenkins namespace
+
+kubectl create configmap docker-config --from-file=$HOME/.docker/config.json -n jenkins
+kubectl get cm -A
+27.Before build a Pipeline 
+
+kubectl create clusterrolebinding jenkins --clusterrole=cluster-admin --serviceaccount=jenkins:default
+
+28.Clone git repo change .yaml to work with your images and push to your repo in git.
+29.Go to New Item - Select Pipeline - Enter a name, for example Pipeline-Docker-Kubectl - Click OK
+30.In Pipeline > Script section enter the following (or copy it from the /jenkins/My-Custom-Pipeline.txt file):
+
+!!! Carefull with git branch and url !!!
+!!! Check configmap = docker-config !!!
+
+Change docker image repo to chonochonov
+Change github to chonochonovuk
+
+31.Add Jenkins Pligin - github
+a) Dashboard -> Manage Jenkins -> Manage Plugins -> GitHub -> Install without restart -> Restart After Install 
+b) Check Pluging Installed
+c) Dashboard -> Pipeline-Docker-Kubectl -> Configure -> GitHub Project -> From Pipline Script -> Poll SCM -> H/3 * * * * -> Save
+
+31.Go to Kibana to define index pattern in for the data coming from Beats
+
+kubectl get pods,svc 
+check NodePort
+
+32.Go to -> Stack Management -> Index Management (to check everything is OK)
+33.Go to -> Index Patterns -> Choose beat for example (metricbeat-*) -> Next step -> @timestamp -> Create Index pattern -> Go to Discover to check the pattern
+34.Create Visualization -> Visualize Library -> Create new -> Aggregation Based -> Line -> Y-axis -> Average -> Choose One -> Bucket -> X-axis -> Date histogram -> Add -> Split Series -> Term -> agent.name -> update -> save -> None
+35.Dashboard -> Add from library -> save current query -> save -> switch to view mode 
+
+
+
+
+
+kops delete cluster kops.chonov.net --yes --state=s3://dof-chono-exam
+
+!!! delete s3 bucket !!!
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

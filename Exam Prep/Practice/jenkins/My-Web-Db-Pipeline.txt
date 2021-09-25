@@ -1,0 +1,70 @@
+def label = "docker-${UUID.randomUUID().toString()}"
+
+podTemplate(label: label, yaml: """
+apiVersion: v1
+kind: Pod
+spec:
+  containers:
+  - name: docker
+    image: docker:20.10.8
+    command: ['cat']
+    tty: true
+    volumeMounts:
+    - name: dockersock
+      mountPath: /var/run/docker.sock
+    - name: docker-config
+      mountPath: /root/.docker
+  - name: kubectl
+    image: lachlanevenson/k8s-kubectl:v1.21.4
+    command: [cat]
+    tty: true
+    volumeMounts:
+    - name: dockersock
+      mountPath: /var/run/docker.sock
+    - name: docker-config
+      mountPath: /root/.docker
+  volumes:
+  - name: dockersock
+    hostPath:
+      path: /var/run/docker.sock
+  - name: docker-config
+    configMap:
+      name: docker-config
+"""
+  ) {
+
+  def imagetag = new Date().format('yyyyMMdd.HHmmss')
+  def image_web = "chonochonov/dob-php:${imagetag}"
+  def image_db = "chonochonov/dob-mysql:${imagetag}"
+  
+  node(label) 
+  {
+    stage('Build Docker image') 
+    {
+      git branch: 'main', url: 'https://github.com/chonochonovuk/DevOpsDocker.git'
+      container('docker') 
+      {
+        sh "docker build -t ${image_web} web/."
+        sh "docker build -t ${image_db} db/."
+      }
+    }
+    stage ("Push")
+    {
+      container('docker') 
+      {
+        sh "docker push ${image_web}"
+        sh "docker push ${image_db}"
+      }
+    }
+    stage ("Apply the changes with kubectl")
+    {
+      container('kubectl') 
+      {
+        sh "sed 's/%IMAGE-PLACEHOLDER%/${imagetag}/g' -i yaml/web.yaml"
+        sh "kubectl apply -f yaml/web.yaml"
+        sh "sed 's/%IMAGE-PLACEHOLDER%/${imagetag}/g' -i yaml/db.yaml"
+        sh "kubectl apply -f yaml/db.yaml"
+      }
+    }
+  }
+}

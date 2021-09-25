@@ -1,0 +1,65 @@
+# -*- mode: ruby -*-
+# vi: set ft=ruby :
+
+Vagrant.configure("2") do |config|
+
+  config.ssh.insert_key = false
+
+  config.vm.define "docker" do |docker|
+    docker.vm.box = "shekeriev/centos-8-minimal"
+    docker.vm.hostname = "docker"
+    docker.vm.network "private_network", ip: "192.168.99.100"
+    docker.vm.provider "virtualbox" do |vb|
+        vb.customize ["modifyvm", :id, "--memory", "3072"]
+    end
+    docker.vm.provision "shell", inline: <<EOS
+echo "* Add hosts ..."
+echo "192.168.99.100 docker" >> /etc/hosts
+
+echo "* Install BASH Completion ..."
+dnf install -y bash-completion
+
+echo "* Add Docker repository ..."
+dnf config-manager --add-repo https://download.docker.com/linux/centos/docker-ce.repo
+
+echo "* Install Docker ..."
+dnf install -y docker-ce docker-ce-cli
+
+echo "* Adjust Docker configuration ..."
+mkdir -p /etc/docker
+echo '{ "hosts": ["tcp://0.0.0.0:2375", "unix:///var/run/docker.sock"] }' | tee /etc/docker/daemon.json
+mkdir -p /etc/systemd/system/docker.service.d/
+echo [Service] | tee /etc/systemd/system/docker.service.d/docker.conf
+echo ExecStart= | tee -a /etc/systemd/system/docker.service.d/docker.conf
+echo ExecStart=/usr/bin/dockerd | tee -a /etc/systemd/system/docker.service.d/docker.conf
+
+echo "* Enable and start Docker ..."
+systemctl enable docker
+systemctl start docker
+
+echo "* Firewall - open port 2375 ..."
+firewall-cmd --add-port=2375/tcp --permanent
+
+echo "* Change firewalld backend to iptables ..."
+sed -i.bak 's/FirewallBackend=nftables/FirewallBackend=iptables/g' /etc/firewalld/firewalld.conf
+
+echo "* Restart the firewalld service ..." 
+systemctl restart firewalld
+
+echo "* Firewall - reload rules ..."
+firewall-cmd --reload
+
+echo "* Add vagrant user to docker group ..."
+usermod -aG docker vagrant
+
+echo "* Install Docker Compose ..."
+curl -L "https://github.com/docker/compose/releases/download/1.29.2/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose
+chmod +x /usr/local/bin/docker-compose
+
+echo "* Add BASH Completion for Docker Compose ..."
+curl -L https://raw.githubusercontent.com/docker/compose/1.29.2/contrib/completion/bash/docker-compose -o /etc/bash_completion.d/docker-compose
+
+EOS
+  end
+
+end

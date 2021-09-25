@@ -1,0 +1,33 @@
+apiVersion: v1
+kind: ReplicationController
+metadata:
+  name: terraform-aws-rc
+spec:
+  replicas: 1 
+  selector:
+    app: terraform-aws
+  template:
+    metadata:
+      labels:
+        app: terraform-aws
+    spec:
+      containers:
+      - name: terraform-aws-container
+        image: shekeriev/terraform-docker
+        ports:
+        - containerPort: 80 
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: terraform-aws-svc
+  labels:
+    app: terraform-aws
+spec:
+  type: LoadBalancer
+  ports:
+  - port: 80
+    targetPort: 80
+    protocol: TCP
+  selector:
+    app: terraform-aws

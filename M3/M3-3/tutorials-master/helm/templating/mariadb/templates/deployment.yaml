@@ -1,0 +1,25 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: mariadb
+spec:
+  selector:
+    matchLabels:
+      app: mariadb
+#  minReadySeconds: 10
+  template:
+    metadata:
+      labels:
+        app: mariadb
+    spec:
+      containers:
+      - env:
+        - name: MYSQL_ROOT_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: mariadb-secret
+              key: root_pwd
+        name: mariadb
+        image: docker.io/mariadb:latest
+        ports:
+        - containerPort: 3306

@@ -1,0 +1,8 @@
+1.Create Vagrantfile that use my Ubuntu-Server vagrant box
+2.Add private network and synced directory /vagrant
+3.Provision with script node-1 (master node) and init
+4.Provision with script node-2 (worker node) and join to cluster
+5.Vagrant up
+6.kubeadm init and join successful
+7.run kubectl taint nodes --all node-role.kubernetes.io/master-
+This will remove the node-role.kubernetes.io/master taint from any nodes that have it, including the control-plane node, meaning that the scheduler will then be able to schedule Pods everywhere.

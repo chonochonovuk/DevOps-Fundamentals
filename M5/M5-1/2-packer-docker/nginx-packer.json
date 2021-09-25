@@ -1,0 +1,48 @@
+{
+  "variables": {
+    "vrepository": "ubuntu-nginx",
+    "vtag": "dev"
+  },
+  "builders": [
+    {
+      "type": "docker",
+      "image": "ubuntu",
+      "commit": "true", 
+      "run_command": ["-d", "-i", "-t", "{{.Image}}"], 
+      "changes": [
+        "EXPOSE 80", 
+        "CMD [\"nginx\", \"-g\", \"daemon off;\"]"
+      ]
+    }
+  ],
+  "provisioners": [
+    {
+      "type": "shell",
+      "inline": [
+        "apt-get update",
+        "DEBIAN_FRONTEND=noninteractive apt-get install -yq nginx"
+      ]
+    },
+    {
+      "type": "file",
+      "destination": "/var/www/html",
+      "source": "site/"
+    },
+    {
+      "type": "shell", 
+      "inline": [
+        "sed -i \"s/BUILT_ON/$(date)/\" /var/www/html/index.html"
+      ]
+    }
+  ],
+  "post-processors": [
+    [
+      {
+        "type": "docker-tag",
+        "repository": "{{user `vrepository`}}",
+        "tag": "{{user `vtag`}}"
+      }
+    ]
+  ]
+}
+ 

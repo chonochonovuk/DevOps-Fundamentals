@@ -1,0 +1,140 @@
+# 
+# Consul Configuration
+# 
+
+# On nomad-server1 (session #1)
+
+cd /vagrant/consul
+
+cp bootstrap.json config.json
+
+consul keygen > token.txt
+
+./setup.sh nomad-server1 $(cat token.txt) 192.168.50.11 192.168.50.12 192.168.50.13
+
+mv config.json config1.json
+
+sudo consul agent --config-dir /vagrant/consul/config1.json -ui -client=0.0.0.0
+
+
+# On nomad-server2 (session #2)
+
+cd /vagrant/consul
+
+cp server.json config.json
+
+./setup.sh nomad-server2 $(cat token.txt) 192.168.50.12 192.168.50.11 192.168.50.13
+
+mv config.json config2.json
+
+sudo consul agent --config-dir /vagrant/consul/config2.json
+
+
+# On nomad-server3 (session #3)
+
+cd /vagrant/consul
+
+cp server.json config.json
+
+./setup.sh nomad-server3 $(cat token.txt) 192.168.50.13 192.168.50.11 192.168.50.12
+
+mv config.json config3.json
+
+sudo consul agent --config-dir /vagrant/consul/config3.json
+
+
+# On nomad-client1 (session #4)
+
+cd /vagrant/consul
+
+cp client.json config.json
+
+./setup.sh nomad-client1 $(cat token.txt) 192.168.50.101 192.168.50.11 192.168.50.12 192.168.50.13
+
+mv config.json configc.json
+
+sudo consul agent --config-dir /vagrant/consul/configc.json
+
+
+# On nomad-server1  (session #5)
+consul members
+
+
+# 
+# Nomad Configuration
+# 
+
+# On nomad-server1 (session #5)
+
+cd /vagrant/nomad
+
+cp base_config.hcl config.hcl
+
+./setup.sh 192.168.50.11 /vagrant/nomad/config.hcl
+
+mv config.hcl config1.hcl
+
+sudo nomad agent -config /vagrant/nomad/config1.hcl -config server.hcl
+
+
+# On nomad-server2 (session #6)
+
+cd /vagrant/nomad
+
+cp base_config.hcl config.hcl
+
+./setup.sh 192.168.50.12 /vagrant/nomad/config.hcl
+
+mv config.hcl config2.hcl
+
+sudo nomad agent -config /vagrant/nomad/config2.hcl -config server.hcl
+
+
+# On nomad-server3 (session #7)
+
+cd /vagrant/nomad
+
+cp base_config.hcl config.hcl
+
+./setup.sh 192.168.50.13 /vagrant/nomad/config.hcl
+
+mv config.hcl config3.hcl
+
+sudo nomad agent -config /vagrant/nomad/config3.hcl -config server.hcl
+
+
+# On nomad-client1 (session #8)
+
+cd /vagrant/nomad
+
+cp base_config.hcl config.hcl
+
+./setup.sh 192.168.50.101 /vagrant/nomad/config.hcl
+
+mv config.hcl configc.hcl
+
+sudo nomad agent -config /vagrant/nomad/configc.hcl -config client.hcl
+
+
+# On nomad-server1 (session #9)
+
+nomad server members --address="http://192.168.50.11:4646"
+
+nomad node status -address="http://192.168.50.11:4646"
+
+
+# 
+# Run a Job
+# 
+
+# On nomad-server1 (session #9)
+
+nomad init
+
+nomad validate example.nomad
+
+nomad plan -address="http://192.168.50.11:4646" example.nomad
+
+nomad run -address="http://192.168.50.11:4646" example.nomad
+
+nomad status -address="http://192.168.50.11:4646"

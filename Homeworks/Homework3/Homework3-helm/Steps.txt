@@ -1,0 +1,11 @@
+1.Download, install and create helm charts 'php-mysql' and 'mariadb'
+2.Create a template for mariadb Deployment object, inside the ./templates create a deployment.yaml  file
+3.Next template which will allow other Pods inside the cluster to enter the Pod with mariadb — service.yaml
+4.Create - values.yaml
+5.Create a template for php Deployment object, inside the ./templates create a deployment.yaml  file
+6.Next template which will allow other Pods inside the cluster to enter the Pod with php — service.yaml
+7.Create - values.yaml
+8.create a secret 'mariadb-secret' on the command line,that will store a MYSQL_ROOT_PASSWORD
+9.Install mariadb package
+10.Dry-run and install php-mysql package
+11.Moment of true - our app working as expected

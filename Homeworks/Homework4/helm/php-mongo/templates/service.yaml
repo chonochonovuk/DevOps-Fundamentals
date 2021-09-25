@@ -1,0 +1,14 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ .Values.phpmongo.name }}
+  labels:
+    app: {{ .Values.phpmongo.name }}
+spec:
+  type: NodePort
+  ports:
+    - port: {{ .Values.phpmongo.port }}
+      nodePort: {{ .Values.phpmongo.nodePort }}
+      name: http-{{ .Values.phpmongo.port }}
+  selector:
+    app: {{ .Values.phpmongo.name }}

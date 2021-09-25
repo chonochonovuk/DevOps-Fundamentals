@@ -1,0 +1,6 @@
+1.Create Vagrantfile
+2.Provision VM with Puppet Agent
+3.Use Puppet agent to provision VM with docker
+4.Build and push docker image from task 1 to "chonochonov/terraform-docker:prod"
+5.Use terraform to Build container on remote host
+6.Web

@@ -1,0 +1,29 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ .Values.phpmongo.name }}
+spec:
+  replicas: {{ .Values.replicaCount }}
+  selector:
+    matchLabels:
+      app: {{ .Values.phpmongo.name }}
+  template:
+    metadata:
+      labels:
+        app: {{ .Values.phpmongo.name }}
+    spec:
+      containers:
+        - name: {{ .Values.phpmongo.name }}
+          image: {{ .Values.phpmongo.container.image }}
+          volumeMounts:
+          - mountPath: /var/www/html/
+            name: git-volume
+            subPath: "Kubernetes-Git-Volumes/web-mongo-chono/"
+          ports:
+          - containerPort: {{ .Values.phpmongo.port }}
+      volumes:
+      - name: git-volume
+        gitRepo:
+          repository: "https://github.com/chonochonovuk/Kubernetes-Git-Volumes"
+          revision: main
+          

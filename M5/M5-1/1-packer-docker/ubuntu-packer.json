@@ -1,0 +1,25 @@
+{
+  "builders": [
+    {
+      "type": "docker",
+      "image": "ubuntu",
+      "commit": "true", 
+      "run_command": ["-d", "-i", "-t", "{{.Image}}"]
+    }
+  ],
+  "provisioners": [
+    {
+      "type": "shell",
+      "inline": ["echo 'Hello World!' > /root/readme.txt"]
+    }
+  ],
+  "post-processors": [
+    [
+      {
+        "type": "docker-tag",
+        "repository": "ubuntu-packer",
+        "tag": "0.1"
+      }
+    ]
+  ]
+}

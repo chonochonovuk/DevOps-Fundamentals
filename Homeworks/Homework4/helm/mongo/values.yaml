@@ -1,0 +1,6 @@
+replicaCount: 1
+mongo:
+    name: mongo-host
+    container:
+        image: mongo
+    port: 27017

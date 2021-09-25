@@ -1,0 +1,8 @@
+replicaCount: 1
+php:
+  name: dob-php
+  container:
+    image: shekeriev/dob-w3-php:latest
+  port: 80
+  nodePort: 30005
+

@@ -1,0 +1,48 @@
+{
+  "variables": {
+    "aws_access_key": "{{env `AWS_ACCESS_KEY_ID`}}",
+    "aws_secret_key": "{{env `AWS_SECRET_ACCESS_KEY`}}",
+    "region": "eu-central-1"
+  },
+  "builders": [
+    {
+      "access_key": "{{user `aws_access_key`}}",
+      "secret_key": "{{user `aws_secret_key`}}",
+
+      "region": "{{ user `region`}}",
+
+      "ami_name": "packer-linux-aws-demo-{{timestamp}}",
+      "instance_type": "t2.micro",
+
+      "source_ami_filter": {
+        "filters": {
+          "virtualization-type": "hvm",
+          "name": "ubuntu/images/*ubuntu-*-18.04-amd64-server-*",
+          "root-device-type": "ebs"
+        },
+        "owners": ["099720109477"],
+        "most_recent": true
+      },
+      "ssh_username": "ubuntu",
+      "type": "amazon-ebs"
+    }
+  ],
+  "provisioners": [
+    {
+      "type": "shell",
+      "script": "./setup-nginx.sh"
+    },
+    {
+      "type": "file",
+      "source": "site",
+      "destination": "/tmp/"
+    },
+    {
+      "type": "shell",
+      "inline": [
+        "sed -i \"s/BUILT_ON/$(date)/\" /tmp/site/index.html", 
+        "sudo mv /tmp/site/* /var/www/html/"
+      ]
+    }
+  ]
+}

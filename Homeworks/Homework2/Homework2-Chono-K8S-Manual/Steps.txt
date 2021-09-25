@@ -1,0 +1,12 @@
+1.Create 1 Ubuntu Base VM
+2.Prepare necessary tools for kuberenetes installation
+3.Install kubeadm
+4.Make 2 Clones of VM and add network forward port for ssh communication  
+5.Edit the netplan configuration file “/etc/netplan/00-installer-config.yaml”
+6.Add hosts and hostname as shown in practice
+7.run kubeadm init on node-1
+8.join node-2 to cluster
+9.join node-3 to cluster
+10.kubectl get nodes -o wide
+11.run kubectl taint nodes --all node-role.kubernetes.io/master-
+This will remove the node-role.kubernetes.io/master taint from any nodes that have it, including the control-plane node, meaning that the scheduler will then be able to schedule Pods everywhere.

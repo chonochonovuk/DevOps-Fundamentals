@@ -1,0 +1,22 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ .Values.redis.name }}
+spec:
+  replicas: {{ .Values.replicaCount }}
+  selector:
+    matchLabels:
+      app: {{ .Values.redis.name }}
+  template:
+    metadata:
+      labels:
+        app: {{ .Values.redis.name }}
+    spec:
+      containers:
+        - env:
+          - name: MASTER
+            value: "true"
+          name: {{ .Values.redis.name }}
+          image: {{ .Values.redis.container.image }}
+          ports:
+          - containerPort: {{ .Values.redis.port }}

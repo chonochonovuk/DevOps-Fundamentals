@@ -1,0 +1,7 @@
+1.Using Helm create two packages for mongo and for php
+2.php-mongo
+3.mongo
+4.Create index.php and use volume of gitRepo type to copy file in /var/www/html
+5.helm install mongo ./mongo
+6.helm install php-mongo ./php-mongo
+7.Our improved app working

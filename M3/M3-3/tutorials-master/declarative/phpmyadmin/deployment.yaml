@@ -1,0 +1,29 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: phpmyadmin
+spec:
+  selector:
+    matchLabels:
+      app: phpmyadmin
+  template:
+    metadata:
+      labels:
+        app: phpmyadmin
+    spec:
+      containers:
+      - env:
+        - name: MYSQL_ROOT_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: mariadb-secret
+              key: root_pwd
+        - name: PMA_HOST
+          valueFrom:
+            configMapKeyRef:
+              name: phpmyadmin-config
+              key: root_pwd
+        name: phpmyadmin
+        image: docker.io/phpmyadmin/phpmyadmin:latest
+        ports:
+        - containerPort: 80

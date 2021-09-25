@@ -1,0 +1,11 @@
+1.Create 4 Modules:
+  a.image-web
+  b.image-db
+  c.container-web
+  d.conatainer-db
+2.Create main.tf in parent folder of modules above and add resource "docker_network"
+3.Create variable.tf with type=map to map "web" and "db"
+4.terraform.tfvars
+5.Run "terraform init" in each module and in parent folder
+6.Run "terraform apply" in main folder
+7.Our app in big quotes :) working.

@@ -1,0 +1,29 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ .Values.php.name }}
+spec:
+  replicas: {{ .Values.replicaCount }}
+  selector:
+    matchLabels:
+      app: {{ .Values.php.name }}
+  template:
+    metadata:
+      labels:
+        app: {{ .Values.php.name }}
+    spec:
+      containers:
+        - name: {{ .Values.php.name }}
+          image: {{ .Values.php.container.image }}
+          volumeMounts:
+          - mountPath: /var/www/html/
+            name: git-volume
+            subPath: "two-docker-images/site/"
+          ports:
+          - containerPort: {{ .Values.php.port }}
+      volumes:
+      - name: git-volume
+        gitRepo:
+          repository: "https://github.com/shekeriev/two-docker-images"
+          revision: master
+          

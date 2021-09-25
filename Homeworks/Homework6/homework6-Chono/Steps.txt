@@ -1,0 +1,8 @@
+1.In order to use the Puppet Provisioner, we need to use a Vagrant box that already has puppet agent pre-installed (not advisable as this gets into the golden image anti-pattern), or we have to install it. 
+2.I am going to use the shell provisioner to install the Puppet agent.
+3.For the Puppet Provisioner, I specify where to source my modules, which is from a local directory ./site/. I’ll use the default site manifest location, which is ./manifests/default.pp.
+4../manifests/default.pp
+5.In the module under site/wesite, the manifests/init.pp
+6.In the module under site/database, the manifests/init.pp
+7.Test the Solution
+8.Result

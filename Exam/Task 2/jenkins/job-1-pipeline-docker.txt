@@ -1,0 +1,47 @@
+def label = "docker-${UUID.randomUUID().toString()}"
+
+podTemplate(label: label, yaml: """
+apiVersion: v1
+kind: Pod
+spec:
+  containers:
+  - name: docker
+    image: docker:20.10.8
+    command: ['cat']
+    tty: true
+    volumeMounts:
+    - name: dockersock
+      mountPath: /var/run/docker.sock
+    - name: docker-config
+      mountPath: /root/.docker
+  volumes:
+  - name: dockersock
+    hostPath:
+      path: /var/run/docker.sock
+  - name: docker-config
+    configMap:
+      name: docker-config
+"""
+  ) {
+
+  def image = "shekeriev/dofepapp:latest"
+  
+  node(label) 
+  {
+    stage('Build Docker image') 
+    {
+      git branch: 'main', url: 'https://github.com/shekeriev/dofepapp.git'
+      container('docker') 
+      {
+        sh "docker build -t ${image} app/."
+      }
+    }
+    stage ("Push")
+    {
+      container('docker') 
+      {
+        sh "docker push ${image}"
+      }
+    }
+  }
+} 

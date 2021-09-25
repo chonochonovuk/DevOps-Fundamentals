@@ -1,0 +1,7 @@
+replicaCount: 1
+phpmongo:
+  name: php-mongo
+  container:
+    image: shekeriev/php-apache-mongo
+  port: 80
+  nodePort: 30005

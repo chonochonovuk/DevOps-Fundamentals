@@ -1,0 +1,34 @@
+# -*- mode: ruby -*-
+# vi: set ft=ruby :
+
+Vagrant.configure(2) do |config|
+    
+  config.ssh.insert_key = false
+
+  config.vm.define "node1" do |node1|
+    node1.vm.box = "chono-ubuntu-server-v2"
+    config.vm.provider "virtualbox" do |v|
+    v.memory = 2048
+    v.cpus = 2
+    end
+    node1.vm.hostname = "node1.k8s"
+    node1.vm.network "private_network", ip: "192.168.99.101"
+    node1.vm.network "forwarded_port", guest: 8001, host: 8001, auto_correct: true
+    node1.vm.synced_folder "vagrant/", "/vagrant"
+    node1.vm.provision "shell", path: "node1.sh"
+ end
+
+  config.vm.define "node2" do |node2|
+    node2.vm.box = "chono-ubuntu-server-v2"
+    config.vm.provider "virtualbox" do |v|
+    v.memory = 2048
+    v.cpus = 2
+    end
+    node2.vm.hostname = "node2.k8s"
+    node2.vm.network "private_network", ip: "192.168.99.102"
+    node2.vm.synced_folder "vagrant/", "/vagrant"
+    node2.vm.provision "shell", path: "node2.sh" 
+  end
+
+ 
+end

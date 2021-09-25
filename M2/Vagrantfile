@@ -1,0 +1,11 @@
+# -*- mode: ruby -*-
+# vi: set ft=ruby :
+
+Vagrant.configure(2) do |config|
+    
+  config.ssh.insert_key = false
+
+  config.vm.define "chono-ubuntu-server-v3" do |chonoUbuntuServerV3|
+    chonoUbuntuServerV3.vm.box = "chono-ubuntu-server-v2"
+ end
+end

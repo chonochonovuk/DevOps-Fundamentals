@@ -1,0 +1,25 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ .Values.mariadb.name }}
+spec:
+  replicas: {{ .Values.replicaCount }}
+  selector:
+    matchLabels:
+      app: {{ .Values.mariadb.name }}
+  template:
+    metadata:
+      labels:
+        app: {{ .Values.mariadb.name }}
+    spec:
+      containers:
+        - env:
+          - name: MYSQL_ROOT_PASSWORD
+            valueFrom:
+              secretKeyRef:
+                name: mariadb-secret
+                key: root_pwd
+          name: {{ .Values.mariadb.name }}
+          image: {{ .Values.mariadb.container.image }}
+          ports:
+          - containerPort: {{ .Values.mariadb.port }}

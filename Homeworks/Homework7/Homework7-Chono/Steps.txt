@@ -1,0 +1,14 @@
+1.Bring up 3 VMs with vagrant
+2.Install Elasticsearch on Ubuntu
+3.Install Logstash
+4.Install Kibana
+5.http://192.168.99.101:5601
+6.Create index pattern - logstash-*
+7.Metricbeat (on nodes)
+8.Configure logstash - /etc/logstash/conf.d/beats.conf
+9.Kibana - Metricbeats
+10.Create index pattern - metricbeat-*
+11.Install NGINX on node2
+12.Custom made nice metricbeats graphic charts
+
+

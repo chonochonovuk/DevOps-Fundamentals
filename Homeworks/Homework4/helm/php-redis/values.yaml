@@ -1,0 +1,7 @@
+replicaCount: 1
+php:
+  name: php-redis
+  container:
+    image: shekeriev/php-apache-redis
+  port: 80
+  nodePort: 30005

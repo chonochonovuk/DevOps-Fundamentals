@@ -1,0 +1,14 @@
+apiVersion: v1
+kind: Service
+metadata:
+  labels:
+    app: phpmyadmin 
+  name: phpmyadmin
+spec:
+  ports:
+  - name: http-{{ .Values.port.target }}
+    port: {{ .Values.port.source }}
+    targetPort: {{ .Values.port.target }}
+  selector:
+      app: phpmyadmin
+  type: LoadBalancer

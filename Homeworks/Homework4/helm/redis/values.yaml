@@ -1,0 +1,6 @@
+replicaCount: 1
+redis:
+    name: redis-host
+    container:
+        image: redis
+    port: 6379
